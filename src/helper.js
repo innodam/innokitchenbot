@@ -6,5 +6,9 @@ module.exports = {
 
     getChatId(msg) {
         return msg.chat.id
+    },
+
+    getUsername(msg){
+        return msg.from.username
     }
 }

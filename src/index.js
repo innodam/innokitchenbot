@@ -15,9 +15,10 @@ const bot = new TelegramBot(config.TOKEN, {
 })
 
 bot.on('message', msg => {
-    console.log('Working', msg.from.first_name)
-
     const chatId = helper.getChatId(msg)
+    const userName = helper.getUsername(msg)
+
+    console.log('Working', userName)
 
     switch (msg.text){
 
@@ -35,10 +36,7 @@ bot.on('message', msg => {
             })
         break
 
-        //Работаем с табелем
-        case kb.home.tabel:
-            break
-        
+      
         //Возврат на главное меню
         case kb.back:
             bot.sendMessage(chatId, 'Главное меню', {
@@ -104,17 +102,88 @@ bot.on('message', msg => {
                 bot.sendMessage(chatId, `${str}`)
             })
             break
-    }
-})
 
-bot.onText(/\/start/, msg => {
+        //Выводим Табель
+        case kb.home.tabel:
+            if (userName == 'dambas' || userName == 'Marat_Zakirov' || userName == 'x3atynx' || userName == 'johnny_la_bams'){
+                console.log('Доступ разрешен')
+                const max  = 16;
+                var  table = '';
+                var sum = 0;
+                        
+                function get_line(txt, num, max) {
+                    var spaces = max - (num.length + txt.length);
+                    return txt + ' '.repeat(spaces) + num + '\n';
+                }
+                function get_line2(txt, num, gsm, max) {
+                    var spaces = max - (num.length + txt.length + gsm.length);
+                    var halfsp = spaces / 2;
+                    return txt + ' '.repeat(halfsp) + num + ' '.repeat(halfsp) + gsm + '\n';
+                }
+                if (userName == 'dambas'){
+                    conn.query("SELECT date, Дамир FROM tabel", function (err, result, fields) {
+                        if (err) throw err;
+                        
+                        table += get_line('Дата', 'Часы', max);
+                        for (let i=0; i<result.length; i++){
+                            table += get_line(`${result[i].date}`, `${result[i].Дамир}`, max);
+                            sum += result[i].Дамир
+                        }
+                        table += get_line('Итого часов:', `${sum}`, max);
+                        bot.sendMessage(chatId, `<pre>${table}</pre>`, {parse_mode: 'HTML'})
+                    })
+                } else if (userName == 'Marat_Zakirov'){
+                    conn.query("SELECT date, Марат, Марат_Гсм FROM tabel", function (err, result, fields) {
+                        if (err) throw err;
 
-    const text = `Добро пожаловать, ${msg.from.first_name}\nВыбери команду для начала работы:`
+                        table += get_line2('Дата', 'Часы', 'Гсм', max);
+                        for(let i=0; i < result.length; i++){
+                            table += get_line2(`${result[i].date}`, `${result[i].Марат}`, `${result[i].Марат_Гсм}`, max);
+                            sum += result[i].Марат
+                        }
+                        table += get_line('Итого часов:', `${sum}`, max);
+                        bot.sendMessage(chatId, `<pre>${table}</pre>`, {parse_mode: 'HTML'})
+                    })
+                } else if (userName == 'x3atynx'){
+                    conn.query("SELECT date, Олег, Олег_Гсм FROM tabel", function (err, result, fields) {
+                        if (err) throw err;
 
-    bot.sendMessage(helper.getChatId(msg), text, {
-        reply_markup: {
-            keyboard: keyboard.home
+                        table += get_line2('Дата', 'Часы', 'Гсм', max);
+                        for(let i=0; i < result.length; i++){
+                            table += get_line2(`${result[i].date}`, `${result[i].Олег}`, `${result[i].Олег_Гсм}`, max);
+                            sum += result[i].Олег
+                        }
+                        table += get_line('Итого часов:', `${sum}`, max);
+                        bot.sendMessage(chatId, `<pre>${table}</pre>`, {parse_mode: 'HTML'})
+                    })
+                } else if (userName == 'johnny_la_bams'){
+                    conn.query("SELECT date, Женя FROM tabel", function (err, result, fields) {
+                        if (err) throw err;
+                        
+                        table += get_line('Дата', 'Часы', max);
+                        for (let i=0; i<result.length; i++){
+                            table += get_line(`${result[i].date}`, `${result[i].Женя}`, max);
+                            sum += result[i].Женя
+                        }
+                        table += get_line('Итого часов:', `${sum}`, max);
+                        bot.sendMessage(chatId, `<pre>${table}</pre>`, {parse_mode: 'HTML'})
+                    })
+            }else {
+                bot.sendMessage(chatId, 'Нет доступа')
+            }
+            break
         }
+    }
     })
 
-})
+    
+    bot.onText(/\/start/, msg => {
+        
+        const text = `Добро пожаловать, ${msg.from.first_name}\nВыбери команду для начала работы:`
+        
+        bot.sendMessage(helper.getChatId(msg), text, {
+            reply_markup: {
+                keyboard: keyboard.home
+            }
+        })
+    })
