@@ -21,5 +21,9 @@ module.exports = {
         [kb.req.gurman, kb.req.veg],
         [kb.req.hoz],
         [kb.back]
+    ],
+    adding: [
+        [kb.req.adding],
+        [kb.back]
     ]
 }

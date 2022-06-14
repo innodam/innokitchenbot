@@ -6,6 +6,7 @@ const kb = require('./keyboard-buttons')
 const mysql = require('mysql')
 
 const conn = mysql.createConnection(config)
+const cook = config.cook
 
 helper.logStart()
 
@@ -25,14 +26,18 @@ bot.on('message', msg => {
         //Выбираем ТК готовых блюд
         case kb.home.tk_main:
             bot.sendMessage(chatId, 'Выберите категорию', {
-                reply_markup: {keyboard: keyboard.tk_dish}
+                reply_markup: {
+                    resize_keyboard: true,
+                    keyboard: keyboard.tk_dish}
             })
             break
 
         //Выбираем ТК заготовок
         case kb.home.tk_zag:
             bot.sendMessage(chatId, 'Выберите категорию:', {
-                reply_markup: {keyboard: keyboard.tk_pre}
+                reply_markup: {
+                    resize_keyboard: true,
+                    keyboard: keyboard.tk_pre}
             })
         break
 
@@ -40,14 +45,18 @@ bot.on('message', msg => {
         //Возврат на главное меню
         case kb.back:
             bot.sendMessage(chatId, 'Главное меню', {
-                reply_markup: {keyboard: keyboard.home}
+                reply_markup: {
+                    resize_keyboard: true,
+                    keyboard: keyboard.home}
             })
         break
 
         //Выбираем поставщика
         case kb.home.req:
             bot.sendMessage(chatId, 'Выберите поставщика', {
-                reply_markup: {keyboard: keyboard.req}
+                reply_markup: {
+                    resize_keyboard: true,
+                    keyboard: keyboard.req}
             })
             break
 
@@ -105,7 +114,8 @@ bot.on('message', msg => {
 
         //Выводим Табель
         case kb.home.tabel:
-            if (userName == 'dambas' || userName == 'Marat_Zakirov' || userName == 'x3atynx' || userName == 'johnny_la_bams'){
+            for (let i=0; i <= cook.length; i++){
+            if (userName == cook[i]){
                 console.log('Доступ разрешен')
                 const max  = 16;
                 var  table = '';
@@ -118,16 +128,20 @@ bot.on('message', msg => {
                 function get_line2(txt, num, gsm, max) {
                     var spaces = max - (num.length + txt.length + gsm.length);
                     var halfsp = spaces / 2;
+                    if ((txt.length === 1 && num.length === 2) || (txt.length === 2 && num.length === 1)) {
+                        return txt + ' '.repeat(halfsp) + num + ' '.repeat(halfsp - 1) + gsm + '\n';
+                    }
                     return txt + ' '.repeat(halfsp) + num + ' '.repeat(halfsp) + gsm + '\n';
                 }
                 if (userName == 'dambas'){
-                    conn.query("SELECT date, Дамир FROM tabel", function (err, result, fields) {
+                    conn.query("SELECT date, dambas FROM tabel", function (err, result, fields) {
+                        console.log(result)
                         if (err) throw err;
                         
                         table += get_line('Дата', 'Часы', max);
                         for (let i=0; i<result.length; i++){
-                            table += get_line(`${result[i].date}`, `${result[i].Дамир}`, max);
-                            sum += result[i].Дамир
+                            table += get_line(`${result[i].date}`, `${result[i].dambas}`, max);
+                            sum += result[i].dambas
                         }
                         table += get_line('Итого часов:', `${sum}`, max);
                         bot.sendMessage(chatId, `<pre>${table}</pre>`, {parse_mode: 'HTML'})
@@ -168,11 +182,13 @@ bot.on('message', msg => {
                         table += get_line('Итого часов:', `${sum}`, max);
                         bot.sendMessage(chatId, `<pre>${table}</pre>`, {parse_mode: 'HTML'})
                     })
-            }else {
-                bot.sendMessage(chatId, 'Нет доступа')
             }
             break
+        }else {
+            console.log(cook)
+            bot.sendMessage(chatId, 'Нет доступа')
         }
+    }
     }
     })
 
@@ -181,9 +197,21 @@ bot.on('message', msg => {
         
         const text = `Добро пожаловать, ${msg.from.first_name}\nВыбери команду для начала работы:`
         
-        bot.sendMessage(helper.getChatId(msg), text, {
-            reply_markup: {
-                keyboard: keyboard.home
+        for(let i=0; i<=cook.length; i++){
+            if (msg.from.username == cook[i]){
+                bot.sendMessage(helper.getChatId(msg), text, {
+                    reply_markup: {
+                        resize_keyboard: true,
+                        keyboard: keyboard.home
+                    }
+                })
+                break
             }
-        })
+            else {
+                bot.sendMessage(helper.getChatId(msg), 'Извините, у вас нет доступа к боту')
+                break
+            }
+        }
+
+        
     })

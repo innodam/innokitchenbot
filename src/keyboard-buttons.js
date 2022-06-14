@@ -23,7 +23,8 @@ module.exports = {
         metro: 'Метро',
         gurman: 'Гурман',
         veg: 'Овощи',
-        hoz: 'Хозка'
+        hoz: 'Хозка',
+        adding: 'Добавить позицию'
     },
     back: 'На главную'
 }
