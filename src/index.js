@@ -20,6 +20,7 @@ bot.on('message', msg => {
     const userName = helper.getUsername(msg)
 
     console.log('Working', userName)
+    console.log(cook)
 
     switch (msg.text){
 
@@ -135,7 +136,6 @@ bot.on('message', msg => {
                 }
                 if (userName == 'dambas'){
                     conn.query("SELECT date, dambas FROM tabel", function (err, result, fields) {
-                        console.log(result)
                         if (err) throw err;
                         
                         table += get_line('Дата', 'Часы', max);
@@ -184,11 +184,9 @@ bot.on('message', msg => {
                     })
             }
             break
-        }else {
-            console.log(cook)
-            bot.sendMessage(chatId, 'Нет доступа')
         }
     }
+    
     }
     })
 
@@ -197,7 +195,7 @@ bot.on('message', msg => {
         
         const text = `Добро пожаловать, ${msg.from.first_name}\nВыбери команду для начала работы:`
         
-        for(let i=0; i<=cook.length; i++){
+        for(let i=0; i<cook.length; i++){
             if (msg.from.username == cook[i]){
                 bot.sendMessage(helper.getChatId(msg), text, {
                     reply_markup: {
@@ -209,9 +207,9 @@ bot.on('message', msg => {
             }
             else {
                 bot.sendMessage(helper.getChatId(msg), 'Извините, у вас нет доступа к боту')
-                break
             }
         }
+            
 
         
     })
