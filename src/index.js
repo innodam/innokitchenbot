@@ -20,7 +20,6 @@ bot.on('message', msg => {
     const userName = helper.getUsername(msg)
 
     console.log('Working', userName)
-    console.log(cook)
 
     switch (msg.text){
 
@@ -135,13 +134,13 @@ bot.on('message', msg => {
                     return txt + ' '.repeat(halfsp) + num + ' '.repeat(halfsp) + gsm + '\n';
                 }
                 if (userName == 'dambas'){
-                    conn.query("SELECT date, dambas FROM tabel", function (err, result, fields) {
+                    conn.query("SELECT * FROM dambas", function (err, result, fields) {
                         if (err) throw err;
                         
                         table += get_line('Дата', 'Часы', max);
                         for (let i=0; i<result.length; i++){
-                            table += get_line(`${result[i].date}`, `${result[i].dambas}`, max);
-                            sum += result[i].dambas
+                            table += get_line(`${result[i].DATE}`, `${result[i].hours}`, max);
+                            sum += result[i].hours
                         }
                         table += get_line('Итого часов:', `${sum}`, max);
                         bot.sendMessage(chatId, `<pre>${table}</pre>`, {parse_mode: 'HTML'})
@@ -171,13 +170,13 @@ bot.on('message', msg => {
                         bot.sendMessage(chatId, `<pre>${table}</pre>`, {parse_mode: 'HTML'})
                     })
                 } else if (userName == 'johnny_la_bams'){
-                    conn.query("SELECT date, Женя FROM tabel", function (err, result, fields) {
+                    conn.query("SELECT * FROM johnny_la_bams", function (err, result, fields) {
                         if (err) throw err;
                         
                         table += get_line('Дата', 'Часы', max);
                         for (let i=0; i<result.length; i++){
-                            table += get_line(`${result[i].date}`, `${result[i].Женя}`, max);
-                            sum += result[i].Женя
+                            table += get_line(`${result[i].DATE}`, `${result[i].hours}`, max);
+                            sum += result[i].hours
                         }
                         table += get_line('Итого часов:', `${sum}`, max);
                         bot.sendMessage(chatId, `<pre>${table}</pre>`, {parse_mode: 'HTML'})
@@ -192,24 +191,16 @@ bot.on('message', msg => {
 
     
     bot.onText(/\/start/, msg => {
-        
         const text = `Добро пожаловать, ${msg.from.first_name}\nВыбери команду для начала работы:`
-        
-        for(let i=0; i<cook.length; i++){
-            if (msg.from.username == cook[i]){
-                bot.sendMessage(helper.getChatId(msg), text, {
-                    reply_markup: {
-                        resize_keyboard: true,
-                        keyboard: keyboard.home
-                    }
-                })
-                break
-            }
-            else {
-                bot.sendMessage(helper.getChatId(msg), 'Извините, у вас нет доступа к боту')
-            }
+    
+        if (cook.includes(msg.from.username)) {
+            bot.sendMessage(helper.getChatId(msg), text, {
+                reply_markup: {
+                    resize_keyboard: true,
+                    keyboard: keyboard.home
+                }
+            })
+        } else {
+            bot.sendMessage(helper.getChatId(msg), 'Извините, у вас нет доступа к боту')
         }
-            
-
-        
     })
