@@ -7,6 +7,7 @@ const mysql = require('mysql')
 
 const conn = mysql.createConnection(config)
 const cook = config.cook
+const cook_gsm = config.cook_gsm
 
 helper.logStart()
 
@@ -129,7 +130,7 @@ bot.on('message', msg => {
                 }
                 return txt + ' '.repeat(halfsp) + num + ' '.repeat(halfsp) + gsm + '\n';
             }
-            if (userName == 'dambas' || userName == 'johnny_la_bams'){
+            if (cook.includes(userName)){
                 conn.query("SELECT * FROM ??", [`${userName}`], function (err, result, fields) {
                     if (err) throw err;
                     table += get_line('Дата', 'Часы', max);
@@ -140,7 +141,7 @@ bot.on('message', msg => {
                     table += get_line('Итого часов:', `${sum}`, max);
                     bot.sendMessage(chatId, `<pre>${table}</pre>`, {parse_mode: 'HTML'})
                 })
-            } else if (userName == 'Marat_Zakirov' || userName == 'x3atynx'){
+            } else if (cook_gsm.includes(userName)){
                 conn.query("SELECT * FROM ??", [`${userName}`], function (err, result, fields) {
                     if (err) throw err;
                     table += get_line2('Дата', 'Часы', 'Гсм', max);
@@ -159,7 +160,7 @@ bot.on('message', msg => {
     bot.onText(/\/start/, msg => {
         const text = `Добро пожаловать, ${msg.from.first_name}\nВыбери команду для начала работы:`
     
-        if (cook.includes(msg.from.username)) {
+        if (cook.includes(msg.from.username) || cook_gsm.includes(msg.from.username)) {
             
             bot.sendMessage(helper.getChatId(msg), text, {
                 reply_markup: {
